@@ -26,7 +26,7 @@ fn main() {
         .expect("I really thought this was not none. Sorry!");
     let value2 = map.get(2);
     // assert!(value == Some(2));
-    assert!(value == 2); // this works if we're using unwrap or expect above
+    assert!(*value == 2); // this works if we're using unwrap or expect above
     assert!(value2 == None);
 }
 
@@ -36,21 +36,21 @@ struct OurStruct {
     weight: u16,
 }
 
-struct OurMap {
-    // buckets: Vec<(u64, i8)>,
-    buckets: Vec<Option<(u64, i8)>>,
-}
-
-// struct OurMap<K, V> {
-//     buckets: Vec<Option<(K, V)>>
+// struct OurMap {
+//     // buckets: Vec<(u64, i8)>,
+//     buckets: Vec<Option<(u64, i8)>>,
 // }
+
+struct OurMap<K, V> {
+    buckets: Vec<Option<(K, V)>>,
+}
 
 const INITIAL_BUCKET_SIZE: usize = 5381;
 
 // impl<K, V> OurMap<K, V> {}
 
-impl OurMap {
-    fn new() -> OurMap {
+impl<K: Hash, V> OurMap<K, V> {
+    fn new() -> OurMap<K, V> {
         let mut buckets = Vec::with_capacity(INITIAL_BUCKET_SIZE);
         // let buckets = Vec::new();
         for _ in 0..INITIAL_BUCKET_SIZE {
@@ -63,8 +63,8 @@ impl OurMap {
         // }
     }
 
-    fn insert(&mut self, key: u64, value: i8) {
-        let index = self.get_index_for_key(key);
+    fn insert(&mut self, key: K, value: V) {
+        let index = self.get_index_for_key(&key);
         self.buckets[index] = Some((key, value));
         // self.buckets.push((key, value));
     }
@@ -85,12 +85,19 @@ impl OurMap {
     //         .map(|pair| pair.1) // map(| (_, v) | *v)
     // }
 
-    fn get(&self, key: u64) -> Option<i8> {
-        let index = self.get_index_for_key(key);
-        self.buckets.get(index).and_then(|p| *p).map(|(_, v)| v)
+    fn get(&self, key: K) -> Option<&V> {
+        let index = self.get_index_for_key(&key);
+        // self.buckets
+        //     .get(index)
+        //     .and_then(|p| p)
+        //     .map(|(_, v)| v)
+        match self.buckets.get(index) {
+            Some(Some((_, v))) => Some(v),
+            _ => None,
+        }
     }
 
-    fn get_index_for_key(&self, key: u64) -> usize {
+    fn get_index_for_key(&self, key: &K) -> usize {
         let mut hasher = DefaultHasher::new();
         key.hash(&mut hasher);
         (hasher.finish() % self.buckets.len() as u64) as usize // here len() returns usize and it depends on the machine, so here I used u64 as I'm on a 64-bit machine
