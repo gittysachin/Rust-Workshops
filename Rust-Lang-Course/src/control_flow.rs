@@ -59,6 +59,23 @@ fn while_and_loop() {
   }
 }
 
+fn for_loop() {
+  for x in 1..11 {
+    if x == 3 {
+      continue;
+    }
+    if x == 8 {
+      break;
+    }
+
+    println!("x = {}", x);
+  }
+
+  for (pos, y) in (30..41).enumerate() {
+    println!("{}: {}", pos, y); // here pos will go from 0 to 9 and y will go from 30 to 40
+  }
+}
+
 fn control_flow() {
   if_statement();
   while_and_loop();
