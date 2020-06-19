@@ -76,7 +76,24 @@ fn for_loop() {
   }
 }
 
+fn match_statement() {
+  let country_code = 91;
+  let country = match country_code {
+    91 => "India",
+    1 => "USA",
+    44 => "UK",
+    7 => "Russia",
+    46 => "Sweden",
+    1...999 => "unknown",  // 999 inclusive
+    _ => "invalid"
+  }
+
+  println!("The country with code {} is {}", country, country_code);
+}
+
 fn control_flow() {
   if_statement();
   while_and_loop();
+  for_loop();
+
 }
